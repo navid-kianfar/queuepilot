@@ -1,7 +1,7 @@
 {
   "name": "queuepilot",
   "version": "1.0.2",
-  "private": true,
+  "private": false,
   "description": "Unified queue management UI for RabbitMQ, Kafka, and BullMQ",
   "scripts": {
     "dev": "concurrently -n api,web -c blue,green \"pnpm --filter @queuepilot/api dev\" \"pnpm --filter @queuepilot/web dev\"",
