@@ -25,9 +25,10 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const port = configService.get('PORT', 3000);
+  const host = configService.get('HOST', '0.0.0.0');
 
-  await app.listen(port);
-  console.log(`QueuePilot API running on http://localhost:${port}`);
+  await app.listen(port, host);
+  console.log(`QueuePilot API running on http://${host}:${port}`);
 }
 
 bootstrap();
