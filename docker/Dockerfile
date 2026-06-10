@@ -5,7 +5,8 @@
 # Stage 1: Install ALL dependencies (with build tools for native modules)
 FROM node:22-alpine AS deps
 RUN apk add --no-cache python3 make g++
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Keep in sync with "packageManager" in package.json
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml .npmrc ./
 COPY apps/api/package.json ./apps/api/
