@@ -1,6 +1,6 @@
 {
   "name": "queuepilot",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "private": false,
   "description": "Unified queue management UI for RabbitMQ, Kafka, and BullMQ",
   "scripts": {
