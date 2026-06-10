@@ -12,6 +12,7 @@ import { Badge } from '../ui/badge';
 import { useRmqExchanges, useRmqCreateExchange, useRmqDeleteExchange, useRmqPublishMessage } from '@/api/hooks/use-rabbitmq';
 import { toast } from 'sonner';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 export function RmqExchanges() {
   const { connId } = useParams();
@@ -48,7 +49,7 @@ export function RmqExchanges() {
     )},
   ];
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={6} actionButtons={1} />;
 
   return (
     <div>

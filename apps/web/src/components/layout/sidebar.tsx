@@ -11,6 +11,7 @@ import {
   Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/ui/logo';
 import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
 import { useConnectionStore } from '@/stores/connection-store';
@@ -71,9 +72,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex h-14 items-center border-b border-sidebar-border px-4">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
-            <Server className="h-4 w-4 text-white" />
-          </div>
+          <Logo className="h-8 w-8 shrink-0" />
           {!collapsed && (
             <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
               QueuePilot

@@ -9,6 +9,7 @@ import { bullmqApi } from '@/api/endpoints/bullmq';
 import { formatNumber, formatDuration } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 const JOB_STATES = ['waiting', 'active', 'completed', 'failed', 'delayed', 'prioritized'] as const;
 
@@ -76,7 +77,7 @@ export function BmqQueues() {
     setLoadingJobs(false);
   };
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={4} />;
 
   return (
     <div>

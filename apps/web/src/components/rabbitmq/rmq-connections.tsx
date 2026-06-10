@@ -6,6 +6,7 @@ import { useRmqConnections, useRmqCloseConnection } from '@/api/hooks/use-rabbit
 import { formatRelativeTime } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 export function RmqConnections() {
   const { connId } = useParams();
@@ -36,7 +37,7 @@ export function RmqConnections() {
     )},
   ];
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={8} />;
 
   return <DataTable data={connections} columns={columns} searchPlaceholder="Search connections..." exportFilename="rmq-connections" />;
 }

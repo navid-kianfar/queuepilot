@@ -1,4 +1,9 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { eq } from 'drizzle-orm';
 import { DATABASE_TOKEN } from '../../database/database.module';
@@ -61,7 +66,16 @@ export class ConnectionService {
       throw new NotFoundException(`Connection #${id} not found`);
     }
 
-    const creds = JSON.parse(this.encryption.decrypt(connection.credentials));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let creds: any;
+    try {
+      creds = JSON.parse(this.encryption.decrypt(connection.credentials));
+    } catch {
+      throw new UnprocessableEntityException(
+        `Stored credentials for connection "${connection.name}" cannot be decrypted — ` +
+          'the encryption key has changed. Edit the connection and re-enter its username/password.',
+      );
+    }
     const metadata = connection.metadata
       ? JSON.parse(connection.metadata)
       : {};
@@ -121,9 +135,16 @@ export class ConnectionService {
       updateData.metadata = JSON.stringify(dto.metadata);
 
     if (dto.username !== undefined || dto.password !== undefined) {
-      const existing = await this.getDecryptedCredentials(id);
+      let existingCreds: Record<string, unknown> = {};
+      try {
+        existingCreds = (await this.getDecryptedCredentials(id))
+          .decryptedCredentials;
+      } catch {
+        // Old credentials are unreadable (e.g. the encryption key changed) —
+        // let the user recover by re-entering them instead of dead-ending
+      }
       const creds = {
-        ...existing.decryptedCredentials,
+        ...existingCreds,
         ...(dto.username !== undefined ? { username: dto.username } : {}),
         ...(dto.password !== undefined ? { password: dto.password } : {}),
       };

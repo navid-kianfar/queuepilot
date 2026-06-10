@@ -12,6 +12,7 @@ import { useRmqQueueByName, useRmqPurgeQueue, useRmqDeleteQueue, useRmqGetMessag
 import { rabbitmqApi } from '@/api/endpoints/rabbitmq';
 import { formatNumber, formatBytes } from '@/lib/utils';
 import { toast } from 'sonner';
+import { DetailHeaderSkeleton, MetricCardsSkeleton, TabsSkeleton, TableSkeleton } from '../shared/skeleton';
 
 export function RmqQueueDetail() {
   const { connId, name } = useParams();
@@ -76,7 +77,14 @@ export function RmqQueueDetail() {
   };
 
   if (isLoading) {
-    return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+    return (
+      <div>
+        <DetailHeaderSkeleton actionButtons={3} />
+        <MetricCardsSkeleton />
+        <TabsSkeleton tabs={4} />
+        <TableSkeleton columns={5} />
+      </div>
+    );
   }
 
   if (!queue) {

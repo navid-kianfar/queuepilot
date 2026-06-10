@@ -9,6 +9,7 @@ import { useRmqVhosts, useRmqCreateVhost, useRmqDeleteVhost } from '@/api/hooks/
 import { formatNumber } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 export function RmqVhosts() {
   const { connId } = useParams();
@@ -36,7 +37,7 @@ export function RmqVhosts() {
     )},
   ];
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={6} actionButtons={1} />;
 
   return (
     <div>

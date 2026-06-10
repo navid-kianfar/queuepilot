@@ -6,6 +6,7 @@ import { useRmqOverview, useRmqNodes } from '@/api/hooks/use-rabbitmq';
 import { formatBytes, formatNumber } from '@/lib/utils';
 import { useState, useRef } from 'react';
 import type { EChartsOption } from 'echarts';
+import { PageHeaderSkeleton, MetricCardsSkeleton, ChartCardSkeleton } from '../shared/skeleton';
 
 export function RmqDashboard() {
   const { connId } = useParams();
@@ -33,10 +34,13 @@ export function RmqDashboard() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-28 animate-pulse rounded-xl border border-border bg-card" />
-        ))}
+      <div>
+        <PageHeaderSkeleton />
+        <MetricCardsSkeleton />
+        <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <ChartCardSkeleton height={240} />
+          <ChartCardSkeleton height={240} />
+        </div>
       </div>
     );
   }

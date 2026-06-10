@@ -7,10 +7,13 @@ import {
   getPaginationRowModel,
   flexRender,
   type ColumnDef,
+  type RowSelectionState,
   type SortingState,
 } from '@tanstack/react-table';
 import { cn } from '@/lib/utils';
 import { ArrowUpDown, ArrowUp, ArrowDown, Search, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { Checkbox } from '../ui/checkbox';
+import { Input } from '../ui/input';
 
 interface DataTableProps<T> {
   data: T[];
@@ -20,6 +23,9 @@ interface DataTableProps<T> {
   onRowClick?: (row: T) => void;
   actions?: React.ReactNode;
   exportFilename?: string;
+  enableSelection?: boolean;
+  getRowId?: (row: T) => string;
+  selectionActions?: (selected: T[], clearSelection: () => void) => React.ReactNode;
 }
 
 export function DataTable<T>({
@@ -30,16 +36,46 @@ export function DataTable<T>({
   onRowClick,
   actions,
   exportFilename,
+  enableSelection = false,
+  getRowId,
+  selectionActions,
 }: DataTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
+  const selectionColumn: ColumnDef<T, any> = {
+    id: 'select',
+    enableSorting: false,
+    header: ({ table }) => (
+      <Checkbox
+        aria-label="Select all rows"
+        checked={table.getIsAllPageRowsSelected()}
+        indeterminate={!table.getIsAllPageRowsSelected() && table.getIsSomePageRowsSelected()}
+        onChange={(v) => table.toggleAllPageRowsSelected(v)}
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        aria-label="Select row"
+        checked={row.getIsSelected()}
+        onChange={(v) => row.toggleSelected(v)}
+        stopPropagation
+      />
+    ),
+  };
+
+  const allColumns = enableSelection ? [selectionColumn, ...columns] : columns;
 
   const table = useReactTable({
     data,
-    columns,
-    state: { sorting, globalFilter },
+    columns: allColumns,
+    state: { sorting, globalFilter, rowSelection },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
+    onRowSelectionChange: setRowSelection,
+    enableRowSelection: enableSelection,
+    getRowId,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -47,11 +83,14 @@ export function DataTable<T>({
     initialState: { pagination: { pageSize } },
   });
 
+  const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
+  const clearSelection = () => setRowSelection({});
+
   const handleExport = () => {
     if (!exportFilename) return;
     const headers = columns.map((c: any) => c.header || c.id || '').join(',');
     const rows = table.getFilteredRowModel().rows.map((row) =>
-      row.getVisibleCells().map((cell) => {
+      row.getVisibleCells().filter((cell) => cell.column.id !== 'select').map((cell) => {
         const val = cell.getValue();
         return typeof val === 'string' && val.includes(',') ? `"${val}"` : String(val ?? '');
       }).join(',')
@@ -70,16 +109,14 @@ export function DataTable<T>({
     <div>
       {/* Toolbar */}
       <div className="mb-4 flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder={searchPlaceholder}
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            className="w-full rounded-lg border border-input bg-background pl-9 pr-3 py-2 text-sm outline-none transition-colors focus:border-ring focus:ring-1 focus:ring-ring"
-          />
-        </div>
+        <Input
+          className="flex-1 max-w-sm"
+          icon={<Search className="h-3.5 w-3.5" />}
+          type="text"
+          placeholder={searchPlaceholder}
+          value={globalFilter}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+        />
         <div className="flex items-center gap-2">
           {exportFilename && (
             <button
@@ -93,6 +130,24 @@ export function DataTable<T>({
           {actions}
         </div>
       </div>
+
+      {/* Selection bar */}
+      {enableSelection && selectedRows.length > 0 && (
+        <div className="mb-3 flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
+          <span className="text-xs font-medium text-foreground">
+            {selectedRows.length} selected
+          </span>
+          <div className="flex items-center gap-2">
+            {selectionActions?.(selectedRows, clearSelection)}
+            <button
+              onClick={clearSelection}
+              className="rounded-lg px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Table */}
       <div className="rounded-xl border border-border overflow-hidden">
@@ -125,7 +180,7 @@ export function DataTable<T>({
           <tbody>
             {table.getRowModel().rows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                <td colSpan={allColumns.length} className="px-4 py-12 text-center text-sm text-muted-foreground">
                   No results found
                 </td>
               </tr>

@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { DataTable } from '../shared/data-table';
 import { useKafkaBrokers } from '@/api/hooks/use-kafka';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 export function KafkaBrokers() {
   const { connId } = useParams();
@@ -18,7 +19,7 @@ export function KafkaBrokers() {
     ) : <span className="text-muted-foreground">Follower</span> },
   ];
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={5} />;
 
   return <DataTable data={brokers} columns={columns} searchPlaceholder="Search brokers..." exportFilename="kafka-brokers" />;
 }

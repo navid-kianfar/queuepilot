@@ -3,6 +3,7 @@ import { HardDrive, Layers, Users, Activity } from 'lucide-react';
 import { MetricCard } from '../shared/metric-card';
 import { useKafkaOverview } from '@/api/hooks/use-kafka';
 import { formatNumber } from '@/lib/utils';
+import { PageHeaderSkeleton, MetricCardsSkeleton, MiniTableSkeleton } from '../shared/skeleton';
 
 export function KafkaDashboard() {
   const { connId } = useParams();
@@ -10,7 +11,13 @@ export function KafkaDashboard() {
   const { data, isLoading } = useKafkaOverview(cid);
 
   if (isLoading) {
-    return <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[1, 2, 3, 4].map((i) => <div key={i} className="h-28 animate-pulse rounded-xl border border-border bg-card" />)}</div>;
+    return (
+      <div>
+        <PageHeaderSkeleton />
+        <MetricCardsSkeleton />
+        <MiniTableSkeleton columns={4} rows={2} />
+      </div>
+    );
   }
 
   if (!data) {

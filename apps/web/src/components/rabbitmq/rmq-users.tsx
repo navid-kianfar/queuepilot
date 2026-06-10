@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useRmqUsers, useRmqCreateUser, useRmqDeleteUser } from '@/api/hooks/use-rabbitmq';
 import { toast } from 'sonner';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 export function RmqUsers() {
   const { connId } = useParams();
@@ -47,7 +48,7 @@ export function RmqUsers() {
     )},
   ];
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={4} actionButtons={1} />;
 
   return (
     <div>

@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes, createCipheriv, createDecipheriv, createHmac } from 'crypto';
 import { writeFileSync, existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { dirname, join } from 'path';
 
 @Injectable()
 export class EncryptionService implements OnModuleInit {
@@ -11,33 +11,32 @@ export class EncryptionService implements OnModuleInit {
   constructor(private configService: ConfigService) {}
 
   onModuleInit() {
+    // 1. ENCRYPTION_KEY from the environment or a .env file (ConfigModule
+    //    reads both) always wins
     let hexKey = this.configService.get<string>('ENCRYPTION_KEY');
 
-    if (!hexKey) {
-      const envPath = join(process.cwd(), '.env');
-      if (existsSync(envPath)) {
-        const content = readFileSync(envPath, 'utf-8');
-        const match = content.match(/^ENCRYPTION_KEY=(.+)$/m);
-        if (match) {
-          hexKey = match[1];
-        }
-      }
+    // 2. Key file stored next to the database, so in Docker it lives on the
+    //    data volume and survives container recreation (the old .env location
+    //    was on the ephemeral container filesystem and lost on every rm/run)
+    const keyFilePath = this.getKeyFilePath();
+    if (!hexKey && existsSync(keyFilePath)) {
+      hexKey = readFileSync(keyFilePath, 'utf-8').trim();
     }
 
     if (!hexKey) {
       hexKey = randomBytes(32).toString('hex');
-      const envPath = join(process.cwd(), '.env');
-      const line = `ENCRYPTION_KEY=${hexKey}\n`;
-      if (existsSync(envPath)) {
-        const content = readFileSync(envPath, 'utf-8');
-        writeFileSync(envPath, content + line);
-      } else {
-        writeFileSync(envPath, line);
-      }
-      console.log('Generated new encryption key and saved to .env');
+      writeFileSync(keyFilePath, hexKey + '\n', { mode: 0o600 });
+      console.log(`Generated new encryption key and saved to ${keyFilePath}`);
     }
 
     this.key = Buffer.from(hexKey, 'hex');
+  }
+
+  private getKeyFilePath(): string {
+    const dbPath =
+      this.configService.get<string>('DATABASE_PATH') ||
+      join(process.cwd(), 'queuepilot.db');
+    return join(dirname(dbPath), '.encryption-key');
   }
 
   hmac(data: string): Buffer {

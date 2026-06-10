@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { DataTable } from '../shared/data-table';
 import { useKafkaConsumerGroups } from '@/api/hooks/use-kafka';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 export function KafkaConsumerGroups() {
   const { connId } = useParams();
@@ -19,7 +20,7 @@ export function KafkaConsumerGroups() {
     { accessorKey: 'members', header: 'Members' },
   ];
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={4} />;
 
   return <DataTable data={groups} columns={columns} searchPlaceholder="Search consumer groups..." exportFilename="kafka-consumer-groups" />;
 }

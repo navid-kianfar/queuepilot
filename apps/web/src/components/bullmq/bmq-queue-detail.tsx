@@ -11,6 +11,7 @@ import { useBullQueue, useBullPauseQueue, useBullResumeQueue, useBullCleanQueue,
 import { bullmqApi } from '@/api/endpoints/bullmq';
 import { formatNumber, formatDuration } from '@/lib/utils';
 import { toast } from 'sonner';
+import { DetailHeaderSkeleton, MetricCardsSkeleton, TabsSkeleton, TableSkeleton } from '../shared/skeleton';
 
 const JOB_STATES = ['waiting', 'active', 'completed', 'failed', 'delayed', 'prioritized'] as const;
 
@@ -77,7 +78,7 @@ export function BmqQueueDetail() {
     }}).then((r) => { toast.success(`Job ${r.id} added`); fetchJobs(jobState); }).catch(() => toast.error('Failed to add job'));
   };
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <div><DetailHeaderSkeleton actionButtons={3} /><MetricCardsSkeleton /><TabsSkeleton tabs={4} /><TableSkeleton columns={5} /></div>;
   if (!queue) return <div className="flex h-64 items-center justify-center text-muted-foreground">Queue not found</div>;
 
   return (

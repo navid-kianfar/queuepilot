@@ -84,6 +84,10 @@ export function useRmqDeleteQueue(connId: number) {
   const qc = useQueryClient();
   return useMutation({ mutationFn: ({ vhost, name }: { vhost: string; name: string }) => rabbitmqApi.deleteQueue(connId, vhost, name), onSuccess: () => qc.invalidateQueries({ queryKey: keys.queues(connId) }) });
 }
+export function useRmqBulkDeleteQueues(connId: number) {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: (queues: { vhost: string; name: string }[]) => rabbitmqApi.bulkDeleteQueues(connId, queues), onSuccess: () => qc.invalidateQueries({ queryKey: keys.queues(connId) }) });
+}
 export function useRmqPurgeQueue(connId: number) {
   const qc = useQueryClient();
   return useMutation({ mutationFn: ({ vhost, name }: { vhost: string; name: string }) => rabbitmqApi.purgeQueue(connId, vhost, name), onSuccess: (_, { vhost, name }) => qc.invalidateQueries({ queryKey: keys.queue(connId, vhost, name) }) });

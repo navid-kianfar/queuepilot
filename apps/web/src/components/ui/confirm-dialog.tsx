@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 interface ConfirmOptions {
   title: string;
   description: string;
+  /** Optional rich content rendered below the description (e.g. a list of affected resources) */
+  content?: React.ReactNode;
   confirmText?: string;
   cancelText?: string;
   variant?: 'danger' | 'warning' | 'info';
@@ -83,6 +85,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
               <AlertDialogPrimitive.Description className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
                 {state?.description}
               </AlertDialogPrimitive.Description>
+              {state?.content && <div className="mt-3">{state.content}</div>}
             </div>
             <div className="flex items-center gap-3 border-t border-border px-6 py-4">
               <AlertDialogPrimitive.Cancel

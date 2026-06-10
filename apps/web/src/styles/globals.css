@@ -83,4 +83,20 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Chrome/Safari autofill: keep the themed background + text instead of the
+     browser's yellow/white override. The huge inset shadow repaints the field
+     with the input background; the long transition stops Chrome re-applying it. */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: var(--color-foreground);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-background) inset;
+    box-shadow: 0 0 0 1000px var(--color-background) inset;
+    caret-color: var(--color-foreground);
+    transition: background-color 9999s ease-in-out 0s;
+  }
 }

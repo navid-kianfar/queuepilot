@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2, Lock, Server, User } from 'lucide-react';
+import { Loader2, Lock, User } from 'lucide-react';
+import { Logo } from '@/components/ui/logo';
 import { isAxiosError } from 'axios';
 import { authApi } from '@/api/endpoints/auth';
 import { useAuthStore } from '@/stores/auth-store';
@@ -55,9 +56,7 @@ export function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600">
-            <Server className="h-6 w-6 text-white" />
-          </div>
+          <Logo className="h-12 w-12" />
           <div className="text-center">
             <h1 className="text-lg font-bold tracking-tight text-foreground">QueuePilot</h1>
             <p className="text-xs text-muted-foreground">Sign in to manage your queues</p>

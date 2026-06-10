@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Rabbit, Waves, Cpu, Loader2, CheckCircle2, XCircle, Palette } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '../ui/input';
+import { ColorPicker } from '../ui/color-picker';
 import {
   useCreateConnection,
   useConnection,
@@ -236,31 +237,11 @@ export function Component() {
             <label className="mb-2 block text-xs font-medium text-muted-foreground">
               <Palette className="mr-1 inline h-3 w-3" /> Color
             </label>
-            <div className="flex items-center gap-2">
-              {colorPresets.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, color: c }))}
-                  className={cn(
-                    'h-7 w-7 rounded-full transition-all',
-                    form.color === c ? 'ring-2 ring-ring ring-offset-2 ring-offset-background scale-110' : 'hover:scale-110',
-                  )}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-              <div className="relative ml-2">
-                <input
-                  type="color"
-                  value={form.color}
-                  onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
-                  className="absolute inset-0 h-7 w-7 cursor-pointer opacity-0"
-                />
-                <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-dashed border-border text-muted-foreground hover:border-primary/50">
-                  <span className="text-[10px]">+</span>
-                </div>
-              </div>
-            </div>
+            <ColorPicker
+              value={form.color}
+              presets={colorPresets}
+              onChange={(c) => setForm((f) => ({ ...f, color: c }))}
+            />
           </div>
         </div>
 

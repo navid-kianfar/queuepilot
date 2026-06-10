@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import { DataTable } from '../shared/data-table';
 import { useRmqChannels } from '@/api/hooks/use-rabbitmq';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 export function RmqChannels() {
   const { connId } = useParams();
@@ -21,7 +22,7 @@ export function RmqChannels() {
     { accessorKey: 'confirm', header: 'Confirm', cell: ({ getValue }) => getValue() ? 'Yes' : 'No' },
   ];
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={8} />;
 
   return <DataTable data={channels} columns={columns} searchPlaceholder="Search channels..." exportFilename="rmq-channels" />;
 }

@@ -8,6 +8,7 @@ import { Select } from '../ui/select';
 import { useRmqBindings, useRmqCreateBinding } from '@/api/hooks/use-rabbitmq';
 import { toast } from 'sonner';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 export function RmqBindings() {
   const { connId } = useParams();
@@ -36,7 +37,7 @@ export function RmqBindings() {
     });
   };
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={5} actionButtons={1} />;
 
   return (
     <div>

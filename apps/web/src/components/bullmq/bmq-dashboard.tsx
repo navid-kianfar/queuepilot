@@ -3,6 +3,7 @@ import { Clock, CheckCircle2, XCircle, Pause } from 'lucide-react';
 import { MetricCard } from '../shared/metric-card';
 import { useBullOverview } from '@/api/hooks/use-bullmq';
 import { formatNumber } from '@/lib/utils';
+import { PageHeaderSkeleton, MetricCardsSkeleton, QueueCardSkeleton } from '../shared/skeleton';
 
 export function BmqDashboard() {
   const { connId } = useParams();
@@ -11,8 +12,14 @@ export function BmqDashboard() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => <div key={i} className="h-28 animate-pulse rounded-xl border border-border bg-card" />)}
+      <div>
+        <PageHeaderSkeleton />
+        <MetricCardsSkeleton />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <QueueCardSkeleton />
+          <QueueCardSkeleton />
+          <QueueCardSkeleton />
+        </div>
       </div>
     );
   }

@@ -8,10 +8,11 @@ import { Input } from '../ui/input';
 import { Select } from '../ui/select';
 import { Switch } from '../ui/switch';
 import { Badge } from '../ui/badge';
-import { useRmqQueues, useRmqCreateQueue, useRmqDeleteQueue, useRmqPurgeQueue } from '@/api/hooks/use-rabbitmq';
+import { useRmqQueues, useRmqCreateQueue, useRmqDeleteQueue, useRmqBulkDeleteQueues, useRmqPurgeQueue } from '@/api/hooks/use-rabbitmq';
 import { formatNumber, formatBytes } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 export function RmqQueues() {
   const { connId } = useParams();
@@ -20,6 +21,7 @@ export function RmqQueues() {
   const { data: queues = [], isLoading } = useRmqQueues(cid);
   const createQueue = useRmqCreateQueue(cid);
   const deleteQueue = useRmqDeleteQueue(cid);
+  const bulkDeleteQueues = useRmqBulkDeleteQueues(cid);
   const purgeQueue = useRmqPurgeQueue(cid);
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ vhost: '/', name: '', durable: true, type: 'classic' });
@@ -53,7 +55,7 @@ export function RmqQueues() {
     )},
   ];
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={9} hasSelection actionButtons={1} />;
 
   return (
     <div>
@@ -62,6 +64,51 @@ export function RmqQueues() {
         columns={columns}
         searchPlaceholder="Search queues..."
         exportFilename="queues"
+        enableSelection
+        getRowId={(row: any) => `${row.vhost}::${row.name}`}
+        selectionActions={(selected: any[], clearSelection) => (
+          <button
+            disabled={bulkDeleteQueues.isPending}
+            onClick={async () => {
+              if (
+                await confirmAction({
+                  title: 'Delete Queues',
+                  description: `The following ${selected.length > 1 ? `${selected.length} queues` : 'queue'} will be permanently deleted. This cannot be undone.`,
+                  content: (
+                    <ul className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-border bg-muted/30 p-2">
+                      {selected.map((q) => (
+                        <li key={`${q.vhost}::${q.name}`} className="flex items-center gap-2 px-1 font-mono text-xs text-foreground">
+                          <Trash2 className="h-3 w-3 shrink-0 text-destructive" />
+                          <span className="truncate">{q.name}</span>
+                          {q.vhost !== '/' && <span className="shrink-0 text-muted-foreground">({q.vhost})</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                  confirmText: `Delete ${selected.length}`,
+                  variant: 'danger',
+                })
+              ) {
+                bulkDeleteQueues.mutate(
+                  selected.map((q) => ({ vhost: q.vhost, name: q.name })),
+                  {
+                    onSuccess: (res: any) => {
+                      if (res.failed?.length) {
+                        toast.warning(`Deleted ${res.deleted} of ${res.requested} — failed: ${res.failed.map((f: any) => f.name).join(', ')}`);
+                      } else {
+                        toast.success(`Deleted ${res.deleted} queue${res.deleted > 1 ? 's' : ''}`);
+                      }
+                      clearSelection();
+                    },
+                  },
+                );
+              }
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90 disabled:opacity-50"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Delete Selected
+          </button>
+        )}
         onRowClick={(row: any) => navigate(`/c/${connId}/rabbitmq/queues/detail/${encodeURIComponent(row.name)}?vhost=${encodeURIComponent(row.vhost)}`)}
         actions={
           <button onClick={() => setShowCreate(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90">

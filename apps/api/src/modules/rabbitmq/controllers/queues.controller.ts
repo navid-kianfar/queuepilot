@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, Query, ParseIntPipe, Res, StreamableFile } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Post, Delete, Param, Body, Query, ParseIntPipe, Res, StreamableFile } from '@nestjs/common';
 import { Response } from 'express';
 import { RabbitmqApiService } from '../services/rabbitmq-api.service';
 import { AuditService } from '../../audit/audit.service';
@@ -75,6 +75,38 @@ export class QueuesController {
     const result = await this.rmqApi.deleteQueue(connId, vhost, name);
     this.audit.log({ connectionId: connId, action: 'queue.delete', resourceType: 'queue', resourceIdentifier: name });
     return result;
+  }
+
+  @Post('bulk-delete')
+  async bulkDelete(
+    @Param('connId', ParseIntPipe) connId: number,
+    @Body() body: { queues: { vhost: string; name: string }[] },
+  ) {
+    const queues = Array.isArray(body?.queues) ? body.queues : [];
+    if (queues.length === 0) {
+      throw new BadRequestException('queues must be a non-empty array of { vhost, name }');
+    }
+
+    const results = await Promise.allSettled(
+      queues.map((q) => this.rmqApi.deleteQueue(connId, q.vhost, q.name)),
+    );
+
+    const failed: { vhost: string; name: string; error: string }[] = [];
+    results.forEach((result, i) => {
+      const q = queues[i];
+      if (result.status === 'rejected') {
+        const reason = result.reason as any;
+        failed.push({
+          vhost: q.vhost,
+          name: q.name,
+          error: reason?.response?.data?.reason || reason?.message || 'Unknown error',
+        });
+      } else {
+        this.audit.log({ connectionId: connId, action: 'queue.delete', resourceType: 'queue', resourceIdentifier: q.name });
+      }
+    });
+
+    return { requested: queues.length, deleted: queues.length - failed.length, failed };
   }
 
   @Delete(':vhost/:name/purge')

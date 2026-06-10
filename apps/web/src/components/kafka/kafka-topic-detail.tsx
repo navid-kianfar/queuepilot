@@ -12,6 +12,7 @@ import { MetricCard } from '../shared/metric-card';
 import { useKafkaTopic, useKafkaDeleteTopic, useKafkaBrowseMessages, useKafkaProduceMessage } from '@/api/hooks/use-kafka';
 import { formatNumber } from '@/lib/utils';
 import { toast } from 'sonner';
+import { DetailHeaderSkeleton, MetricCardsSkeleton, TabsSkeleton, TableSkeleton } from '../shared/skeleton';
 
 export function KafkaTopicDetail() {
   const { connId, name } = useParams();
@@ -55,7 +56,7 @@ export function KafkaTopicDetail() {
     });
   };
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <div><DetailHeaderSkeleton actionButtons={1} /><MetricCardsSkeleton /><TabsSkeleton tabs={3} /><TableSkeleton columns={5} /></div>;
   if (!topic) return <div className="flex h-64 items-center justify-center text-muted-foreground">Topic not found</div>;
 
   const totalMessages = (topic.partitions || []).reduce((sum: number, p: any) => sum + (Number(p.highWatermark) - Number(p.lowWatermark)), 0);

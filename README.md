@@ -199,7 +199,7 @@ pnpm start
 | `DATABASE_PATH` | SQLite database file path | `./queuepilot.db` |
 | `AUTH_USERNAME` | Enable login authentication (set both username + password) | _(disabled)_ |
 | `AUTH_PASSWORD` | Enable login authentication (set both username + password) | _(disabled)_ |
-| `ENCRYPTION_KEY` | 64-char hex string for credential encryption | _(auto-generated)_ |
+| `ENCRYPTION_KEY` | 64-char hex string for credential encryption | _(auto-generated, stored in `.encryption-key` next to the database)_ |
 
 ## Architecture
 

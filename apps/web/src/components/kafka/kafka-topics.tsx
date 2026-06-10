@@ -9,6 +9,7 @@ import { Input } from '../ui/input';
 import { useKafkaTopics, useKafkaCreateTopic, useKafkaDeleteTopic, useKafkaBrowseMessages } from '@/api/hooks/use-kafka';
 import { toast } from 'sonner';
 import type { ColumnDef } from '@tanstack/react-table';
+import { TableSkeleton } from '../shared/skeleton';
 
 export function KafkaTopics() {
   const { connId } = useParams();
@@ -49,7 +50,7 @@ export function KafkaTopics() {
     });
   };
 
-  if (isLoading) return <div className="h-64 animate-pulse rounded-xl border border-border bg-card" />;
+  if (isLoading) return <TableSkeleton columns={4} actionButtons={1} />;
 
   return (
     <div>

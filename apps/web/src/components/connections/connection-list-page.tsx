@@ -17,6 +17,7 @@ import { EmptyState } from '../shared/empty-state';
 import { BrokerType, BROKER_LABELS } from '@queuepilot/shared';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { ConnectionCardsSkeleton } from '../shared/skeleton';
 
 const brokerIcons: Record<string, React.ElementType> = {
   rabbitmq: Rabbit,
@@ -47,16 +48,7 @@ export function Component() {
   };
 
   if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-40 animate-pulse rounded-xl border border-border bg-card"
-          />
-        ))}
-      </div>
-    );
+    return <ConnectionCardsSkeleton />;
   }
 
   if (connections.length === 0) {
