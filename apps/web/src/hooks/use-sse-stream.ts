@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '@/stores/auth-store';
 
 interface UseSSEOptions {
   channels: string[];
@@ -13,7 +14,10 @@ export function useSSEStream({ channels, enabled = true }: UseSSEOptions) {
   const connect = useCallback(() => {
     if (!enabled || channels.length === 0) return;
 
-    const url = `/api/v1/sse?channels=${channels.join(',')}`;
+    // EventSource cannot send an Authorization header, so pass the token as a query param
+    const { token } = useAuthStore.getState();
+    const tokenParam = token ? `&token=${encodeURIComponent(token)}` : '';
+    const url = `/api/v1/sse?channels=${channels.join(',')}${tokenParam}`;
     const es = new EventSource(url);
 
     es.onmessage = (event) => {

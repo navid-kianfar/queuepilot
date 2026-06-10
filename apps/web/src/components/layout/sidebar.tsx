@@ -6,10 +6,12 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
+  LogOut,
   Server,
   Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/sidebar-store';
 import { useConnectionStore } from '@/stores/connection-store';
 import { useConnections } from '@/api/hooks/use-connections';
@@ -33,6 +35,8 @@ export function Sidebar() {
   const params = useParams();
   const collapsed = useSidebarStore((s) => s.collapsed);
   const toggleCollapsed = useSidebarStore((s) => s.toggleCollapsed);
+  const token = useAuthStore((s) => s.token);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
   const { activeConnectionId, setActiveConnection, setConnections } =
     useConnectionStore();
   const { data: connections = [] } = useConnections();
@@ -162,6 +166,21 @@ export function Sidebar() {
           <Settings className="h-4 w-4" />
           {!collapsed && <span>Settings</span>}
         </button>
+        {token && (
+          <button
+            onClick={() => {
+              clearAuth();
+              navigate('/login');
+            }}
+            className={cn(
+              'flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-sm text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
+              collapsed && 'justify-center px-0',
+            )}
+          >
+            <LogOut className="h-4 w-4" />
+            {!collapsed && <span>Sign Out</span>}
+          </button>
+        )}
       </div>
 
       {/* Collapse Toggle */}

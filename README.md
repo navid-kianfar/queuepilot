@@ -197,8 +197,8 @@ pnpm start
 |----------|-------------|---------|
 | `PORT` | Server port | `3000` |
 | `DATABASE_PATH` | SQLite database file path | `./queuepilot.db` |
-| `AUTH_USERNAME` | Enable basic auth (set both username + password) | _(disabled)_ |
-| `AUTH_PASSWORD` | Enable basic auth (set both username + password) | _(disabled)_ |
+| `AUTH_USERNAME` | Enable login authentication (set both username + password) | _(disabled)_ |
+| `AUTH_PASSWORD` | Enable login authentication (set both username + password) | _(disabled)_ |
 | `ENCRYPTION_KEY` | 64-char hex string for credential encryption | _(auto-generated)_ |
 
 ## Architecture

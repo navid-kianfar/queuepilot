@@ -1,5 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import { AppLayout } from './components/layout/app-layout';
+import { LoginPage } from './components/auth/login-page';
+import { RequireAuth } from './components/auth/require-auth';
 // RabbitMQ
 import { RmqLayout } from './components/rabbitmq/rmq-layout';
 import { RmqDashboard } from './components/rabbitmq/rmq-dashboard';
@@ -29,9 +31,16 @@ import { KafkaBrokers } from './components/kafka/kafka-brokers';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <AppLayout />,
+    path: '/login',
+    element: <LoginPage />,
+  },
+  {
+    element: <RequireAuth />,
     children: [
+      {
+        path: '/',
+        element: <AppLayout />,
+        children: [
       {
         index: true,
         lazy: () => import('./components/connections/connection-list-page'),
@@ -93,6 +102,8 @@ export const router = createBrowserRouter([
       {
         path: 'settings',
         lazy: () => import('./components/connections/connection-list-page'),
+      },
+        ],
       },
     ],
   },

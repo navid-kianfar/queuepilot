@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+import { randomBytes, createCipheriv, createDecipheriv, createHmac } from 'crypto';
 import { writeFileSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -38,6 +38,10 @@ export class EncryptionService implements OnModuleInit {
     }
 
     this.key = Buffer.from(hexKey, 'hex');
+  }
+
+  hmac(data: string): Buffer {
+    return createHmac('sha256', this.key).update(data).digest();
   }
 
   encrypt(plaintext: string): string {

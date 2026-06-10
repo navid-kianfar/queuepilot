@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AuthModule } from './modules/auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { ConnectionModule } from './modules/connection/connection.module';
 import { SSEModule } from './modules/sse/sse.module';
@@ -28,6 +29,7 @@ import { AppController } from './app.controller';
           }),
         ]
       : []),
+    AuthModule,
     DatabaseModule,
     ConnectionModule,
     SSEModule,
